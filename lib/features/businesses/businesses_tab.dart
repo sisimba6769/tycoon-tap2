@@ -19,14 +19,8 @@ class BusinessesTab extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              Text(
-                '🏢 Бизнесы',
-                style: const TextStyle(
-                  color: AppColors.textColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              const Text('🏢 Бизнесы',
+                  style: TextStyle(color: AppColors.textColor, fontSize: 18, fontWeight: FontWeight.bold)),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -35,14 +29,8 @@ class BusinessesTab extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.accent.withOpacity(0.3)),
                 ),
-                child: Text(
-                  '+${NumberFormatter.format(game.incomePerSecond)}/с',
-                  style: const TextStyle(
-                    color: AppColors.accentLight,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: Text('+${NumberFormatter.format(game.incomePerSecond)}/с',
+                    style: const TextStyle(color: AppColors.accentLight, fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ],
           ),

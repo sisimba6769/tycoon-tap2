@@ -15,14 +15,14 @@ import '../features/investments/investments_tab.dart';
 import '../features/stocks/stocks_tab.dart';
 import '../features/taxes/taxes_tab.dart';
 import '../features/prestige/prestige_tab.dart';
- 
+
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
- 
+
   @override
   ConsumerState<MainScreen> createState() => _MainScreenState();
 }
- 
+
 class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void initState() {
@@ -31,11 +31,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       if (mounted) UpdateChecker.check(context);
     });
   }
- 
+
   @override
   Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
- 
     return Scaffold(
       body: GameBackground(
         child: SafeArea(
@@ -51,9 +50,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 const SizedBox(height: 4),
               ],
               const TabNavigator(),
-              Expanded(
-                child: _TabContent(tab: game.currentTab),
-              ),
+              Expanded(child: _TabContent(tab: game.currentTab)),
             ],
           ),
         ),
@@ -61,7 +58,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     );
   }
 }
- 
+
 class _TopBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -73,10 +70,8 @@ class _TopBar extends ConsumerWidget {
             shaderCallback: (bounds) => const LinearGradient(
               colors: [AppColors.accentLight, AppColors.purple],
             ).createShader(bounds),
-            child: const Text(
-              '💰 TycoonTap',
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+            child: const Text('💰 TycoonTap',
+                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
           ),
           const Spacer(),
           GlassContainer(
@@ -97,12 +92,11 @@ class _TopBar extends ConsumerWidget {
     );
   }
 }
- 
+
 class _BalanceDisplay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final game = ref.watch(gameProvider);
- 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: GlassContainer(
@@ -113,26 +107,17 @@ class _BalanceDisplay extends ConsumerWidget {
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [AppColors.accentLight, Color(0xFF7FE8C9)],
               ).createShader(bounds),
-              child: Text(
-                NumberFormatter.format(game.money),
-                style: const TextStyle(
-                  color: Colors.white, fontSize: 34,
-                  fontWeight: FontWeight.bold, height: 1.1,
-                ),
-              ),
+              child: Text(NumberFormatter.format(game.money),
+                  style: const TextStyle(color: Colors.white, fontSize: 34, fontWeight: FontWeight.bold, height: 1.1)),
             ),
             const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  NumberFormatter.formatPerSec(game.incomePerSecond),
-                  style: TextStyle(color: AppColors.accentLight.withOpacity(0.8), fontSize: 13),
-                ),
-                Text(
-                  '  ·  Всего: ${NumberFormatter.format(game.totalEarned)}',
-                  style: TextStyle(color: AppColors.textColor.withOpacity(0.4), fontSize: 12),
-                ),
+                Text(NumberFormatter.formatPerSec(game.incomePerSecond),
+                    style: TextStyle(color: AppColors.accentLight.withOpacity(0.8), fontSize: 13)),
+                Text('  ·  Всего: ${NumberFormatter.format(game.totalEarned)}',
+                    style: TextStyle(color: AppColors.textColor.withOpacity(0.4), fontSize: 12)),
               ],
             ),
             if (game.prestigeLevel > 0) ...[
@@ -144,10 +129,8 @@ class _BalanceDisplay extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppColors.purple.withOpacity(0.3)),
                 ),
-                child: Text(
-                  '⭐ Престиж ${game.prestigeLevel} · ×${game.prestigeMultiplier.toStringAsFixed(1)}',
-                  style: const TextStyle(color: AppColors.purple, fontSize: 11, fontWeight: FontWeight.bold),
-                ),
+                child: Text('⭐ Престиж ${game.prestigeLevel} · ×${game.prestigeMultiplier.toStringAsFixed(1)}',
+                    style: const TextStyle(color: AppColors.purple, fontSize: 11, fontWeight: FontWeight.bold)),
               ),
             ],
           ],
@@ -156,11 +139,11 @@ class _BalanceDisplay extends ConsumerWidget {
     );
   }
 }
- 
+
 class _TabContent extends StatelessWidget {
   final int tab;
   const _TabContent({required this.tab});
- 
+
   @override
   Widget build(BuildContext context) {
     switch (tab) {
@@ -172,3 +155,4 @@ class _TabContent extends StatelessWidget {
       default: return const BusinessesTab();
     }
   }
+}

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
-import '../core/theme.dart';
+import '../../core/theme.dart';
 
 class UpdateChecker {
   static const _versionUrl =
@@ -35,7 +35,7 @@ class UpdateChecker {
           children: [
             Text('🚀 ', style: TextStyle(fontSize: 24)),
             Text('Доступно обновление!',
-                style: TextStyle(color: AppColors.textColor, fontSize: 16, fontWeight: FontWeight.bold)),
+                style: TextStyle(color: Color(0xFFF0F0F0), fontSize: 16, fontWeight: FontWeight.bold)),
           ],
         ),
         content: Column(
@@ -62,7 +62,7 @@ class UpdateChecker {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.accent, Color(0xFF0F6B50)]),
+                gradient: const LinearGradient(colors: [Color(0xFF1D9E75), Color(0xFF0F6B50)]),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Text('⬇️ Обновить',
