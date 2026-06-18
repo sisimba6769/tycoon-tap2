@@ -5,19 +5,19 @@ import '../../core/models/game_models.dart';
 import '../../core/theme.dart';
 import '../../core/utils/number_formatter.dart';
 import '../../widgets/glass_container.dart';
- 
+
 class BusinessCard extends ConsumerStatefulWidget {
   final int index;
   const BusinessCard({super.key, required this.index});
- 
+
   @override
   ConsumerState<BusinessCard> createState() => _BusinessCardState();
 }
- 
+
 class _BusinessCardState extends ConsumerState<BusinessCard>
     with SingleTickerProviderStateMixin {
   bool _expanded = false;
- 
+
   @override
   Widget build(BuildContext context) {
     final game = ref.watch(gameProvider);
@@ -25,7 +25,7 @@ class _BusinessCardState extends ConsumerState<BusinessCard>
     final canAfford = game.money >= b.cost;
     final canAffordManager = b.owned > 0 && game.money >= b.managerCost;
     final income = b.income(game.prestigeMultiplier, game.newsMultiplier);
- 
+
     return GlassContainer(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.all(14),
@@ -186,11 +186,11 @@ class _BusinessCardState extends ConsumerState<BusinessCard>
     );
   }
 }
- 
+
 class _ProgressBar extends StatelessWidget {
   final double progress;
   const _ProgressBar({required this.progress});
- 
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -210,7 +210,7 @@ class _ProgressBar extends StatelessWidget {
     );
   }
 }
- 
+
 class _ActionButton extends StatelessWidget {
   final String label;
   final bool enabled;
@@ -218,7 +218,7 @@ class _ActionButton extends StatelessWidget {
   final Color color;
   final bool small;
   final String? tooltip;
- 
+
   const _ActionButton({
     required this.label,
     required this.enabled,
@@ -227,7 +227,7 @@ class _ActionButton extends StatelessWidget {
     this.small = false,
     this.tooltip,
   });
- 
+
   @override
   Widget build(BuildContext context) {
     final child = GestureDetector(
@@ -257,23 +257,23 @@ class _ActionButton extends StatelessWidget {
     return child;
   }
 }
- 
+
 class _UpgradesRow extends ConsumerWidget {
   final int businessIndex;
   const _UpgradesRow({required this.businessIndex});
- 
+
   static const _upgradeLabels = ['×2', '×5', '×10'];
   static const _upgradeColors = [
     Color(0xFF3498DB),
     Color(0xFF9B59B6),
     Color(0xFFE67E22),
   ];
- 
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final game = ref.watch(gameProvider);
     final b = game.businesses[businessIndex];
- 
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -362,3 +362,4 @@ class _UpgradesRow extends ConsumerWidget {
       ],
     );
   }
+}
