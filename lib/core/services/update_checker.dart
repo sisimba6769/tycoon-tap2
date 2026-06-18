@@ -6,7 +6,7 @@ import '../../core/theme.dart';
 
 class UpdateChecker {
   static const _versionUrl =
-      'https://raw.githubusercontent.com/sisimba6769/tycoon-tap2/main/version.json';
+      'https://raw.githubusercontent.com/sisimba6769/tycoon-tap2/refs/heads/main/version.json';
   static const _currentVersion = '1.0.0';
 
   static Future<void> check(BuildContext context) async {
