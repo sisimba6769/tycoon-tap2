@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'core/services/hive_service.dart';
-import 'core/router.dart';
+import 'core/services/auth_service.dart';
 import 'core/theme.dart';
+import 'screens/auth_screen.dart';
+import 'screens/main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,15 +24,31 @@ class TycoonTapApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(appRouterProvider);
     final isDark = ref.watch(themeProvider);
-    return MaterialApp.router(
+    return MaterialApp(
       title: 'TycoonTap',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-      routerConfig: router,
+      home: AuthService.isLoggedIn ? const MainScreen() : _AuthWrapper(),
+    );
+  }
+}
+
+class _AuthWrapper extends StatefulWidget {
+  @override
+  State<_AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<_AuthWrapper> {
+  bool _authed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_authed) return const MainScreen();
+    return AuthScreen(
+      onSuccess: () => setState(() => _authed = true),
     );
   }
 }
