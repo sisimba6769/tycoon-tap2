@@ -756,7 +756,31 @@ class GameNotifier extends StateNotifier<GameState> {
       adminUnlocked: adminUnlocked,
     );
   }
-
+  void loadFromServer(Map<String, dynamic> serverData) {
+    try {
+      final s = state;
+      final money = (serverData['money'] as num?)?.toDouble() ?? 10;
+      final totalEarned = (serverData['totalEarned'] as num?)?.toDouble() ?? 10;
+      final prestigeLevel = (serverData['prestigeLevel'] as int?) ?? 0;
+      final prestigeMultiplier = 1.0 + prestigeLevel * 0.5;
+      final businesses = s.businesses;
+      final savedBiz = serverData['businesses'] as List?;
+      if (savedBiz != null) {
+        for (int i = 0; i < businesses.length && i < savedBiz.length; i++) {
+          businesses[i].fromMap(Map<String, dynamic>.from(savedBiz[i] as Map));
+        }
+      }
+      state = GameState(
+        money: money, totalEarned: totalEarned, tapPower: s.tapPower,
+        prestigeLevel: prestigeLevel, prestigeMultiplier: prestigeMultiplier,
+        newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+        currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+        businesses: businesses, investments: s.investments, stocks: s.stocks,
+        rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
+        adminUnlocked: s.adminUnlocked,
+      );
+    } catch (_) {}
+  }
   @override
   void dispose() {
     _gameTimer?.cancel();
