@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../core/theme.dart';
 import '../core/services/auth_service.dart';
@@ -20,7 +19,7 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _isLogin = false;
   bool _loading = false;
   String _error = '';
-  int _step = 0; // 0 = имя, 1 = пароль
+  int _step = 0;
 
   void _next() async {
     if (_step == 0) {
@@ -52,7 +51,7 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() => _loading = false);
 
     if (result.containsKey('error')) {
-      setState(() => _error = result['error']);
+      setState(() => _error = result['error'].toString());
       return;
     }
 
@@ -69,7 +68,7 @@ class _AuthScreenState extends State<AuthScreen> {
       body: GameBackground(
         child: SafeArea(
           child: Center(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

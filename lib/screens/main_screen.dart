@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../core/services/game_provider.dart';
 import '../core/services/update_checker.dart';
+import '../core/services/auth_service.dart';
 import '../core/theme.dart';
 import '../core/utils/number_formatter.dart';
 import '../widgets/game_background.dart';
@@ -30,6 +30,20 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) UpdateChecker.check(context);
     });
+    // Автосохранение на сервер каждые 30 секунд
+    Future.delayed(const Duration(seconds: 30), _autoSave);
+  }
+
+  void _autoSave() async {
+    if (!mounted) return;
+    final game = ref.read(gameProvider);
+    await AuthService.saveProgress({
+      'money': game.money,
+      'totalEarned': game.totalEarned,
+      'prestigeLevel': game.prestigeLevel,
+      'businesses': game.businesses.map((b) => b.toMap()).toList(),
+    });
+    Future.delayed(const Duration(seconds: 30), _autoSave);
   }
 
   @override
@@ -70,21 +84,23 @@ class _TopBar extends ConsumerWidget {
             shaderCallback: (bounds) => const LinearGradient(
               colors: [AppColors.accentLight, AppColors.purple],
             ).createShader(bounds),
-            child: const Text('💰 TycoonTap',
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            child: const Text(
+              '💰 TycoonTap',
+              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ),
           const Spacer(),
           GlassContainer(
             padding: const EdgeInsets.all(8),
             borderRadius: 12,
-            onTap: () => context.push('/admin'),
+            onTap: () => Navigator.pushNamed(context, '/admin'),
             child: const Text('🔐', style: TextStyle(fontSize: 14)),
           ),
           const SizedBox(width: 8),
           GlassContainer(
             padding: const EdgeInsets.all(8),
             borderRadius: 12,
-            onTap: () => context.push('/settings'),
+            onTap: () => Navigator.pushNamed(context, '/settings'),
             child: const Text('⚙️', style: TextStyle(fontSize: 18)),
           ),
         ],
