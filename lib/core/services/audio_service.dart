@@ -13,6 +13,12 @@ class AudioService {
     final box = Hive.box('settings');
     _soundEnabled = box.get('soundEnabled', defaultValue: true) as bool;
     _volume = (box.get('volume', defaultValue: 0.7) as num).toDouble();
+    _init();
+  }
+
+  Future<void> _init() async {
+    await _buyPlayer.setReleaseMode(ReleaseMode.stop);
+    await _prestigePlayer.setReleaseMode(ReleaseMode.stop);
   }
 
   void setSoundEnabled(bool enabled) {
@@ -33,17 +39,23 @@ class AudioService {
   Future<void> playBuy() async {
     if (!_soundEnabled) return;
     try {
+      await _buyPlayer.stop();
       await _buyPlayer.setVolume(_volume);
       await _buyPlayer.play(AssetSource('sounds/buy.mp3'));
-    } catch (_) {}
+    } catch (e) {
+      print('playBuy error: $e');
+    }
   }
 
   Future<void> playPrestige() async {
     if (!_soundEnabled) return;
     try {
+      await _prestigePlayer.stop();
       await _prestigePlayer.setVolume(_volume);
       await _prestigePlayer.play(AssetSource('sounds/prestige.mp3'));
-    } catch (_) {}
+    } catch (e) {
+      print('playPrestige error: $e');
+    }
   }
 
   void dispose() {

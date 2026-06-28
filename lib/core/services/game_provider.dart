@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/game_models.dart';
+import 'auth_service.dart';
 
 class GameState {
   double money;
@@ -57,18 +58,19 @@ class GameState {
   double get prestige1MRequirement => 1000000 * pow(5, prestigeLevel).toDouble();
 
   static List<BusinessData> _defaultBusinesses() => [
-    BusinessData(id: 'lemonade', icon: '🍋', name: 'Ларёк с лимонадом', baseCost: 10, baseIncome: 1, cycleTime: 1),
-    BusinessData(id: 'pizza', icon: '🍕', name: 'Пиццерия', baseCost: 120, baseIncome: 8, cycleTime: 3),
-    BusinessData(id: 'coffee', icon: '☕', name: 'Кофейня', baseCost: 1300, baseIncome: 47, cycleTime: 6),
-    BusinessData(id: 'market', icon: '🏪', name: 'Супермаркет', baseCost: 14000, baseIncome: 400, cycleTime: 12),
-    BusinessData(id: 'hotel', icon: '🏨', name: 'Отель', baseCost: 200000, baseIncome: 5200, cycleTime: 24),
-    BusinessData(id: 'factory', icon: '🏭', name: 'Завод', baseCost: 3000000, baseIncome: 90000, cycleTime: 48),
-    BusinessData(id: 'power', icon: '⚡', name: 'Электростанция', baseCost: 50000000, baseIncome: 1500000, cycleTime: 96),
-    BusinessData(id: 'bank', icon: '🏦', name: 'Банк', baseCost: 1000000000, baseIncome: 30000000, cycleTime: 192),
-    BusinessData(id: 'oil', icon: '🛢️', name: 'Нефтяная компания', baseCost: 25000000000, baseIncome: 750000000, cycleTime: 384),
-    BusinessData(id: 'ai', icon: '🤖', name: 'ИИ корпорация', baseCost: 500000000000, baseIncome: 15000000000, cycleTime: 768),
-    BusinessData(id: 'space', icon: '🚀', name: 'Космическая компания', baseCost: 10000000000000, baseIncome: 300000000000, cycleTime: 1536),
-    BusinessData(id: 'city', icon: '🌍', name: 'Мегаполис', baseCost: 200000000000000, baseIncome: 6000000000000, cycleTime: 3072),
+    BusinessData(id: 'lemonade', icon: 'lemonade', name: 'Ларёк с лимонадом', baseCost: 10, baseIncome: 1, cycleTime: 1),
+    BusinessData(id: 'shawarma', icon: 'shawarma', name: 'Шаурмечная', baseCost: 80, baseIncome: 5, cycleTime: 2),
+    BusinessData(id: 'pizza', icon: 'pizza', name: 'Пиццерия', baseCost: 120, baseIncome: 8, cycleTime: 3),
+    BusinessData(id: 'coffee', icon: 'coffee', name: 'Кофейня', baseCost: 1300, baseIncome: 47, cycleTime: 6),
+    BusinessData(id: 'market', icon: 'market', name: 'Супермаркет', baseCost: 14000, baseIncome: 400, cycleTime: 12),
+    BusinessData(id: 'hotel', icon: 'hotel', name: 'Отель', baseCost: 200000, baseIncome: 5200, cycleTime: 24),
+    BusinessData(id: 'factory', icon: 'factory', name: 'Завод', baseCost: 3000000, baseIncome: 90000, cycleTime: 48),
+    BusinessData(id: 'power', icon: 'power', name: 'Электростанция', baseCost: 50000000, baseIncome: 1500000, cycleTime: 96),
+    BusinessData(id: 'bank', icon: 'bank', name: 'Банк', baseCost: 1000000000, baseIncome: 30000000, cycleTime: 192),
+    BusinessData(id: 'oil', icon: 'oil', name: 'Нефтяная компания', baseCost: 25000000000, baseIncome: 750000000, cycleTime: 384),
+    BusinessData(id: 'ai', icon: 'ai', name: 'ИИ корпорация', baseCost: 500000000000, baseIncome: 15000000000, cycleTime: 768),
+    BusinessData(id: 'space', icon: 'space', name: 'Космическая компания', baseCost: 10000000000000, baseIncome: 300000000000, cycleTime: 1536),
+    BusinessData(id: 'city', icon: 'city', name: 'Мегаполис', baseCost: 200000000000000, baseIncome: 6000000000000, cycleTime: 3072),
   ];
 
   static List<InvestmentData> _defaultInvestments() => [
@@ -96,6 +98,10 @@ class GameState {
     StockData(ticker: 'GRPW', companyName: 'GreenPower', currentPrice: 120, volatility: 0.04, dividendYield: 0.02),
     StockData(ticker: 'LUXC', companyName: 'LuxCarry', currentPrice: 780, volatility: 0.03, dividendYield: 0.015),
     StockData(ticker: 'GMVS', companyName: 'GameVerse', currentPrice: 65, volatility: 0.09, dividendYield: 0.0),
+    StockData(ticker: 'NVDA', companyName: 'NvidiaX', currentPrice: 1200, volatility: 0.05, dividendYield: 0.001),
+    StockData(ticker: 'BTCX', companyName: 'BitcoinEx', currentPrice: 45000, volatility: 0.12, dividendYield: 0.0),
+    StockData(ticker: 'AIRB', companyName: 'AirBnb Plus', currentPrice: 180, volatility: 0.05, dividendYield: 0.008),
+    StockData(ticker: 'FOOD', companyName: 'FoodDelivery', currentPrice: 95, volatility: 0.06, dividendYield: 0.012),
   ];
 
   static List<RivalData> _defaultRivals() => [
@@ -112,46 +118,112 @@ class GameState {
 class GameNotifier extends StateNotifier<GameState> {
   Timer? _gameTimer;
   Timer? _saveTimer;
+  Timer? _serverSaveTimer;
   Timer? _newsTimer;
   Timer? _stockTimer;
   Timer? _rivalTimer;
   Timer? _taxTimer;
   final Random _random = Random();
   final List<NewsItem> _allNews = [
-    NewsItem(text: '📈 Экономический бум!', multiplier: 2.0, duration: 30, positive: true),
-    NewsItem(text: '📉 Финансовый кризис!', multiplier: 0.5, duration: 20, positive: false),
-    NewsItem(text: '🤖 ИИ революция!', multiplier: 1.8, duration: 25, positive: true),
-    NewsItem(text: '🌱 Зелёная экономика', multiplier: 1.4, duration: 20, positive: true),
-    NewsItem(text: '🚀 Космическая гонка', multiplier: 1.6, duration: 15, positive: true),
-    NewsItem(text: '💹 Рекордный рост рынка', multiplier: 1.9, duration: 30, positive: true),
-    NewsItem(text: '🏦 Банковский коллапс', multiplier: 0.6, duration: 20, positive: false),
-    NewsItem(text: '⚡ Энергетический кризис', multiplier: 0.7, duration: 15, positive: false),
-    NewsItem(text: '💊 Фармацевтический бум', multiplier: 1.5, duration: 20, positive: true),
-    NewsItem(text: '🛢️ Нефть дорожает', multiplier: 1.3, duration: 25, positive: true),
-    NewsItem(text: '🌍 Глобальная рецессия', multiplier: 0.4, duration: 30, positive: false),
-    NewsItem(text: '💰 Налоговые льготы', multiplier: 1.7, duration: 20, positive: true),
+    NewsItem(text: 'Экономический бум!', multiplier: 2.0, duration: 30, positive: true),
+    NewsItem(text: 'Финансовый кризис!', multiplier: 0.5, duration: 20, positive: false),
+    NewsItem(text: 'ИИ революция!', multiplier: 1.8, duration: 25, positive: true),
+    NewsItem(text: 'Зелёная экономика', multiplier: 1.4, duration: 20, positive: true),
+    NewsItem(text: 'Космическая гонка', multiplier: 1.6, duration: 15, positive: true),
+    NewsItem(text: 'Рекордный рост рынка', multiplier: 1.9, duration: 30, positive: true),
+    NewsItem(text: 'Банковский коллапс', multiplier: 0.6, duration: 20, positive: false),
+    NewsItem(text: 'Энергетический кризис', multiplier: 0.7, duration: 15, positive: false),
+    NewsItem(text: 'Фармацевтический бум', multiplier: 1.5, duration: 20, positive: true),
+    NewsItem(text: 'Нефть дорожает', multiplier: 1.3, duration: 25, positive: true),
+    NewsItem(text: 'Глобальная рецессия', multiplier: 0.4, duration: 30, positive: false),
+    NewsItem(text: 'Налоговые льготы', multiplier: 1.7, duration: 20, positive: true),
   ];
 
   GameNotifier() : super(GameState()) {
     _loadGame();
+    _applyOfflineProgress();
     _startTimers();
+  }
+
+  void _applyOfflineProgress() {
+    final box = Hive.box('game');
+    final lastSaved = box.get('lastSaved') as int?;
+    if (lastSaved == null) return;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final elapsed = (now - lastSaved) / 1000.0; // seconds
+    if (elapsed < 10) return;
+    final maxOffline = 8 * 3600.0; // max 8 hours offline
+    final dt = elapsed.clamp(0, maxOffline);
+    final s = state;
+    double earned = 0;
+    for (final b in s.businesses) {
+      if (b.owned == 0 || b.isStopped || !b.hasManager) continue;
+      final cycles = dt / b.cycleTime;
+      final inc = b.income(s.prestigeMultiplier, 1.0) * cycles;
+      earned += inc;
+      final tax = inc * s.taxRate;
+      b.taxDebt += tax;
+    }
+    // Update stocks offline
+    for (final stock in s.stocks) {
+      final ticks = (dt / 3).floor();
+      for (int i = 0; i < ticks.clamp(0, 100); i++) {
+        final change = 1.0 + (_random.nextDouble() * 2 - 1) * stock.volatility;
+        stock.currentPrice = (stock.currentPrice * change).clamp(1, double.infinity);
+      }
+    }
+    if (earned > 0) {
+      state = GameState(
+        money: s.money + earned,
+        totalEarned: s.totalEarned + earned,
+        tapPower: s.tapPower,
+        prestigeLevel: s.prestigeLevel,
+        prestigeMultiplier: s.prestigeMultiplier,
+        newsMultiplier: s.newsMultiplier,
+        newsTimeRemaining: s.newsTimeRemaining,
+        currentNewsText: s.currentNewsText,
+        currentTab: s.currentTab,
+        businesses: s.businesses,
+        investments: s.investments,
+        stocks: s.stocks,
+        rivals: s.rivals,
+        taxRate: s.taxRate,
+        totalTaxDebt: s.totalTaxDebt,
+        adminUnlocked: s.adminUnlocked,
+      );
+    }
   }
 
   void _startTimers() {
     _gameTimer = Timer.periodic(const Duration(milliseconds: 100), _gameTick);
     _saveTimer = Timer.periodic(const Duration(seconds: 5), (_) => _saveGame());
+    _serverSaveTimer = Timer.periodic(const Duration(seconds: 5), (_) => _saveToServer());
     _newsTimer = Timer.periodic(const Duration(seconds: 45), (_) => _triggerRandomNews());
     _stockTimer = Timer.periodic(const Duration(seconds: 3), (_) => _updateStocks());
     _rivalTimer = Timer.periodic(const Duration(seconds: 10), (_) => _updateRivals());
     _taxTimer = Timer.periodic(const Duration(hours: 1), (_) => _checkTaxes());
   }
 
+  Future<void> _saveToServer() async {
+    final s = state;
+    await AuthService.saveProgress({
+      'money': s.money,
+      'totalEarned': s.totalEarned,
+      'prestigeLevel': s.prestigeLevel,
+      'businesses': s.businesses.map((b) => b.toMap()).toList(),
+      'stocks': s.stocks.map((st) => {
+        'ticker': st.ticker,
+        'currentPrice': st.currentPrice,
+        'ownedShares': st.ownedShares,
+        'avgBuyPrice': st.avgBuyPrice,
+      }).toList(),
+    });
+  }
+
   void _gameTick(Timer t) {
-    final dt = 0.1; // 100ms
+    final dt = 0.1;
     final s = state;
     bool changed = false;
-
-    // Update business cycles
     final businesses = s.businesses;
     double earned = 0;
     for (final b in businesses) {
@@ -166,72 +238,44 @@ class GameNotifier extends StateNotifier<GameState> {
           b.progress = 0;
           final inc = b.income(s.prestigeMultiplier, s.newsMultiplier);
           earned += inc;
-          // Tax
           final tax = inc * s.taxRate;
           b.taxDebt += tax;
-          if (!b.hasManager) {
-            b.isRunning = false;
-          }
+          if (!b.hasManager) b.isRunning = false;
           changed = true;
         }
       }
     }
-
-    // Update news timer
     if (s.newsTimeRemaining > 0) {
       final newTime = s.newsTimeRemaining - 1;
       if (newTime <= 0) {
         state = GameState(
-          money: s.money + earned,
-          totalEarned: s.totalEarned + earned,
-          tapPower: s.tapPower,
-          prestigeLevel: s.prestigeLevel,
-          prestigeMultiplier: s.prestigeMultiplier,
-          newsMultiplier: 1.0,
-          newsTimeRemaining: 0,
-          currentNewsText: '📊 Рынок стабилен',
-          currentTab: s.currentTab,
-          businesses: businesses,
-          investments: s.investments,
-          stocks: s.stocks,
-          rivals: s.rivals,
-          taxRate: s.taxRate,
-          totalTaxDebt: s.totalTaxDebt,
-          adminUnlocked: s.adminUnlocked,
+          money: s.money + earned, totalEarned: s.totalEarned + earned,
+          tapPower: s.tapPower, prestigeLevel: s.prestigeLevel,
+          prestigeMultiplier: s.prestigeMultiplier, newsMultiplier: 1.0,
+          newsTimeRemaining: 0, currentNewsText: 'Рынок стабилен',
+          currentTab: s.currentTab, businesses: businesses,
+          investments: s.investments, stocks: s.stocks, rivals: s.rivals,
+          taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt, adminUnlocked: s.adminUnlocked,
         );
         return;
       }
-      // Throttle: only update state every ~10 ticks to avoid rebuild storm
-      if (changed || earned > 0) {
-        state = _copyWith(earned: earned, newsTimeRemaining: newTime);
-      }
+      if (changed || earned > 0) state = _copyWith(earned: earned, newsTimeRemaining: newTime);
       return;
     }
-
-    if (changed || earned > 0) {
-      state = _copyWith(earned: earned);
-    }
+    if (changed || earned > 0) state = _copyWith(earned: earned);
   }
 
   GameState _copyWith({double earned = 0, int? newsTimeRemaining}) {
     final s = state;
     return GameState(
-      money: s.money + earned,
-      totalEarned: s.totalEarned + earned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
+      money: s.money + earned, totalEarned: s.totalEarned + earned,
+      tapPower: s.tapPower, prestigeLevel: s.prestigeLevel,
+      prestigeMultiplier: s.prestigeMultiplier, newsMultiplier: s.newsMultiplier,
       newsTimeRemaining: newsTimeRemaining ?? s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
-      adminUnlocked: s.adminUnlocked,
+      currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments,
+      stocks: s.stocks, rivals: s.rivals,
+      taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt, adminUnlocked: s.adminUnlocked,
     );
   }
 
@@ -248,28 +292,18 @@ class GameNotifier extends StateNotifier<GameState> {
     if (s.money < cost) return;
     b.owned++;
     state = GameState(
-      money: s.money - cost,
-      totalEarned: s.totalEarned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
+      money: s.money - cost, totalEarned: s.totalEarned, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+      currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
       adminUnlocked: s.adminUnlocked,
     );
   }
 
   void runBusiness(int index) {
-    final s = state;
-    final b = s.businesses[index];
+    final b = state.businesses[index];
     if (b.owned == 0 || b.isRunning || b.isStopped) return;
     b.isRunning = true;
     state = _copyWith();
@@ -282,21 +316,12 @@ class GameNotifier extends StateNotifier<GameState> {
     if (s.money < cost || b.owned == 0) return;
     b.hasManager = true;
     state = GameState(
-      money: s.money - cost,
-      totalEarned: s.totalEarned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
+      money: s.money - cost, totalEarned: s.totalEarned, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+      currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
       adminUnlocked: s.adminUnlocked,
     );
   }
@@ -309,21 +334,12 @@ class GameNotifier extends StateNotifier<GameState> {
     if (s.money < cost) return;
     b.upgrades[upgradeIndex] = true;
     state = GameState(
-      money: s.money - cost,
-      totalEarned: s.totalEarned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
+      money: s.money - cost, totalEarned: s.totalEarned, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+      currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
       adminUnlocked: s.adminUnlocked,
     );
   }
@@ -336,21 +352,12 @@ class GameNotifier extends StateNotifier<GameState> {
     if (s.money < cost) return;
     b.level++;
     state = GameState(
-      money: s.money - cost,
-      totalEarned: s.totalEarned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
+      money: s.money - cost, totalEarned: s.totalEarned, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+      currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
       adminUnlocked: s.adminUnlocked,
     );
   }
@@ -361,38 +368,23 @@ class GameNotifier extends StateNotifier<GameState> {
     if (s.money < inv.cost || inv.isOnCooldown) return;
     final success = _random.nextDouble() < inv.chance;
     double moneyDelta = -inv.cost;
-    if (success) {
-      moneyDelta += inv.cost * inv.multiplier;
-    }
+    if (success) moneyDelta += inv.cost * inv.multiplier;
     inv.isOnCooldown = true;
     inv.cooldownRemaining = inv.cooldown;
-    // Start cooldown
     Timer.periodic(const Duration(seconds: 1), (t) {
       inv.cooldownRemaining--;
-      if (inv.cooldownRemaining <= 0) {
-        inv.isOnCooldown = false;
-        t.cancel();
-      }
-      // Force rebuild
+      if (inv.cooldownRemaining <= 0) { inv.isOnCooldown = false; t.cancel(); }
       state = _copyWith();
     });
     state = GameState(
       money: s.money + moneyDelta,
       totalEarned: moneyDelta > 0 ? s.totalEarned + moneyDelta : s.totalEarned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
-      adminUnlocked: s.adminUnlocked,
+      tapPower: s.tapPower, prestigeLevel: s.prestigeLevel,
+      prestigeMultiplier: s.prestigeMultiplier, newsMultiplier: s.newsMultiplier,
+      newsTimeRemaining: s.newsTimeRemaining, currentNewsText: s.currentNewsText,
+      currentTab: s.currentTab, businesses: s.businesses, investments: s.investments,
+      stocks: s.stocks, rivals: s.rivals, taxRate: s.taxRate,
+      totalTaxDebt: s.totalTaxDebt, adminUnlocked: s.adminUnlocked,
     );
   }
 
@@ -402,27 +394,17 @@ class GameNotifier extends StateNotifier<GameState> {
     final total = stock.currentPrice * qty;
     if (s.money < total) return;
     final prevQty = stock.ownedShares;
-    final prevAvg = stock.avgBuyPrice;
     stock.avgBuyPrice = prevQty == 0
         ? stock.currentPrice
-        : (prevAvg * prevQty + stock.currentPrice * qty) / (prevQty + qty);
+        : (stock.avgBuyPrice * prevQty + stock.currentPrice * qty) / (prevQty + qty);
     stock.ownedShares += qty;
     state = GameState(
-      money: s.money - total,
-      totalEarned: s.totalEarned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
+      money: s.money - total, totalEarned: s.totalEarned, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+      currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
       adminUnlocked: s.adminUnlocked,
     );
   }
@@ -435,21 +417,12 @@ class GameNotifier extends StateNotifier<GameState> {
     stock.ownedShares -= qty;
     if (stock.ownedShares == 0) stock.avgBuyPrice = 0;
     state = GameState(
-      money: s.money + total,
-      totalEarned: s.totalEarned + total,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
+      money: s.money + total, totalEarned: s.totalEarned + total, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+      currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
       adminUnlocked: s.adminUnlocked,
     );
   }
@@ -462,21 +435,12 @@ class GameNotifier extends StateNotifier<GameState> {
     b.taxDebt = 0;
     b.isStopped = false;
     state = GameState(
-      money: s.money - debt,
-      totalEarned: s.totalEarned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
+      money: s.money - debt, totalEarned: s.totalEarned, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+      currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
       adminUnlocked: s.adminUnlocked,
     );
   }
@@ -485,27 +449,14 @@ class GameNotifier extends StateNotifier<GameState> {
     final s = state;
     double total = s.businesses.fold(0.0, (sum, b) => sum + b.taxDebt);
     if (s.money < total) return;
-    for (final b in s.businesses) {
-      b.taxDebt = 0;
-      b.isStopped = false;
-    }
+    for (final b in s.businesses) { b.taxDebt = 0; b.isStopped = false; }
     state = GameState(
-      money: s.money - total,
-      totalEarned: s.totalEarned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: 0,
-      adminUnlocked: s.adminUnlocked,
+      money: s.money - total, totalEarned: s.totalEarned, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+      currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: 0, adminUnlocked: s.adminUnlocked,
     );
   }
 
@@ -513,48 +464,25 @@ class GameNotifier extends StateNotifier<GameState> {
     final s = state;
     if (s.money < s.prestige1MRequirement) return;
     final newLevel = s.prestigeLevel + 1;
-    final newMultiplier = 1.0 + newLevel * 0.5;
-    final freshBusinesses = GameState._defaultBusinesses();
     state = GameState(
-      money: 10,
-      totalEarned: 10,
-      tapPower: 1,
-      prestigeLevel: newLevel,
-      prestigeMultiplier: newMultiplier,
-      newsMultiplier: 1.0,
-      newsTimeRemaining: 0,
-      currentNewsText: '✨ Новое начало',
-      currentTab: s.currentTab,
-      businesses: freshBusinesses,
-      investments: GameState._defaultInvestments(),
-      stocks: s.stocks, // keep portfolio
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: 0,
-      adminUnlocked: s.adminUnlocked,
+      money: 10, totalEarned: 10, tapPower: 1,
+      prestigeLevel: newLevel, prestigeMultiplier: 1.0 + newLevel * 0.5,
+      newsMultiplier: 1.0, newsTimeRemaining: 0, currentNewsText: 'Новое начало',
+      currentTab: s.currentTab, businesses: GameState._defaultBusinesses(),
+      investments: GameState._defaultInvestments(), stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: 0, adminUnlocked: s.adminUnlocked,
     );
   }
 
   void setTab(int tab) {
-    state = _copyWith();
-    // use a fresh copy with updated tab
     final s = state;
     state = GameState(
-      money: s.money,
-      totalEarned: s.totalEarned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: tab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
+      money: s.money, totalEarned: s.totalEarned, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+      currentNewsText: s.currentNewsText, currentTab: tab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
       adminUnlocked: s.adminUnlocked,
     );
   }
@@ -563,21 +491,12 @@ class GameNotifier extends StateNotifier<GameState> {
     final news = _allNews[_random.nextInt(_allNews.length)];
     final s = state;
     state = GameState(
-      money: s.money,
-      totalEarned: s.totalEarned,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: news.multiplier,
-      newsTimeRemaining: news.duration,
-      currentNewsText: news.text,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
+      money: s.money, totalEarned: s.totalEarned, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: news.multiplier, newsTimeRemaining: news.duration,
+      currentNewsText: news.text, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
       adminUnlocked: s.adminUnlocked,
     );
   }
@@ -589,25 +508,15 @@ class GameNotifier extends StateNotifier<GameState> {
       stock.currentPrice = (stock.currentPrice * change).clamp(1, double.infinity);
       stock.history.add(stock.currentPrice);
       if (stock.history.length > 50) stock.history.removeAt(0);
-      // Pay dividends
       if (stock.ownedShares > 0 && stock.dividendYield > 0) {
         final div = stock.ownedShares * stock.currentPrice * stock.dividendYield / 365;
         state = GameState(
-          money: s.money + div,
-          totalEarned: s.totalEarned + div,
-          tapPower: s.tapPower,
-          prestigeLevel: s.prestigeLevel,
-          prestigeMultiplier: s.prestigeMultiplier,
-          newsMultiplier: s.newsMultiplier,
-          newsTimeRemaining: s.newsTimeRemaining,
-          currentNewsText: s.currentNewsText,
-          currentTab: s.currentTab,
-          businesses: s.businesses,
-          investments: s.investments,
-          stocks: s.stocks,
-          rivals: s.rivals,
-          taxRate: s.taxRate,
-          totalTaxDebt: s.totalTaxDebt,
+          money: s.money + div, totalEarned: s.totalEarned + div, tapPower: s.tapPower,
+          prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+          newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+          currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+          businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+          rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
           adminUnlocked: s.adminUnlocked,
         );
       }
@@ -616,57 +525,36 @@ class GameNotifier extends StateNotifier<GameState> {
   }
 
   void _updateRivals() {
-    final s = state;
-    for (final r in s.rivals) {
-      r.capital *= (1 + _random.nextDouble() * 0.02);
-    }
+    for (final r in state.rivals) r.capital *= (1 + _random.nextDouble() * 0.02);
     state = _copyWith();
   }
 
   void _checkTaxes() {
-    final s = state;
-    for (final b in s.businesses) {
-      if (b.taxDebt > 0) {
-        b.isStopped = true;
-      }
-    }
+    for (final b in state.businesses) { if (b.taxDebt > 0) b.isStopped = true; }
     state = _copyWith();
   }
 
-  // Admin actions
   void adminAddMoney(double amount) {
     final s = state;
     state = GameState(
-      money: s.money + amount,
-      totalEarned: s.totalEarned + amount,
-      tapPower: s.tapPower,
-      prestigeLevel: s.prestigeLevel,
-      prestigeMultiplier: s.prestigeMultiplier,
-      newsMultiplier: s.newsMultiplier,
-      newsTimeRemaining: s.newsTimeRemaining,
-      currentNewsText: s.currentNewsText,
-      currentTab: s.currentTab,
-      businesses: s.businesses,
-      investments: s.investments,
-      stocks: s.stocks,
-      rivals: s.rivals,
-      taxRate: s.taxRate,
-      totalTaxDebt: s.totalTaxDebt,
+      money: s.money + amount, totalEarned: s.totalEarned + amount, tapPower: s.tapPower,
+      prestigeLevel: s.prestigeLevel, prestigeMultiplier: s.prestigeMultiplier,
+      newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+      currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+      businesses: s.businesses, investments: s.investments, stocks: s.stocks,
+      rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
       adminUnlocked: s.adminUnlocked,
     );
   }
 
   void adminAllManagers() {
-    for (final b in state.businesses) {
-      b.hasManager = true;
-    }
+    for (final b in state.businesses) b.hasManager = true;
     state = _copyWith();
   }
 
   void adminMaxBusinesses() {
     for (final b in state.businesses) {
-      b.owned = 100;
-      b.level = 4;
+      b.owned = 100; b.level = 4;
       for (int i = 0; i < 3; i++) b.upgrades[i] = true;
     }
     state = _copyWith();
@@ -686,9 +574,48 @@ class GameNotifier extends StateNotifier<GameState> {
   }
 
   void resetGame() {
-    final s = state;
-    state = GameState(adminUnlocked: s.adminUnlocked);
+    state = GameState(adminUnlocked: state.adminUnlocked);
     _saveGame();
+  }
+
+  void loadFromServer(Map<String, dynamic> serverData) {
+    try {
+      final s = state;
+      final money = (serverData['money'] as num?)?.toDouble() ?? 10;
+      final totalEarned = (serverData['totalEarned'] as num?)?.toDouble() ?? 10;
+      final prestigeLevel = (serverData['prestigeLevel'] as int?) ?? 0;
+      final businesses = s.businesses;
+      final savedBiz = serverData['businesses'] as List?;
+      if (savedBiz != null) {
+        for (int i = 0; i < businesses.length && i < savedBiz.length; i++) {
+          businesses[i].fromMap(Map<String, dynamic>.from(savedBiz[i] as Map));
+        }
+      }
+      final stocks = s.stocks;
+      final savedStocks = serverData['stocks'] as List?;
+      if (savedStocks != null) {
+        for (final ss in savedStocks) {
+          final m = Map<String, dynamic>.from(ss as Map);
+          final ticker = m['ticker'] as String?;
+          if (ticker == null) continue;
+          try {
+            final stock = stocks.firstWhere((st) => st.ticker == ticker);
+            stock.currentPrice = (m['currentPrice'] as num?)?.toDouble() ?? stock.currentPrice;
+            stock.ownedShares = (m['ownedShares'] as int?) ?? 0;
+            stock.avgBuyPrice = (m['avgBuyPrice'] as num?)?.toDouble() ?? 0;
+          } catch (_) {}
+        }
+      }
+      state = GameState(
+        money: money, totalEarned: totalEarned, tapPower: s.tapPower,
+        prestigeLevel: prestigeLevel, prestigeMultiplier: 1.0 + prestigeLevel * 0.5,
+        newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
+        currentNewsText: s.currentNewsText, currentTab: s.currentTab,
+        businesses: businesses, investments: s.investments, stocks: stocks,
+        rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
+        adminUnlocked: s.adminUnlocked,
+      );
+    } catch (_) {}
   }
 
   void _saveGame() {
@@ -701,13 +628,12 @@ class GameNotifier extends StateNotifier<GameState> {
     box.put('newsMultiplier', s.newsMultiplier);
     box.put('newsTimeRemaining', s.newsTimeRemaining);
     box.put('currentNewsText', s.currentNewsText);
-    final bizMaps = s.businesses.map((b) => b.toMap()).toList();
-    box.put('businesses', bizMaps);
-    final stockMaps = s.stocks.map((st) => {
+    box.put('lastSaved', DateTime.now().millisecondsSinceEpoch);
+    box.put('businesses', s.businesses.map((b) => b.toMap()).toList());
+    box.put('stocks', s.stocks.map((st) => {
       'ticker': st.ticker, 'currentPrice': st.currentPrice,
       'history': st.history, 'ownedShares': st.ownedShares, 'avgBuyPrice': st.avgBuyPrice,
-    }).toList();
-    box.put('stocks', stockMaps);
+    }).toList());
     box.put('adminUnlocked', s.adminUnlocked);
   }
 
@@ -719,12 +645,10 @@ class GameNotifier extends StateNotifier<GameState> {
     final totalEarned = (box.get('totalEarned') as num?)?.toDouble() ?? 10;
     final tapPower = (box.get('tapPower') as num?)?.toDouble() ?? 1;
     final prestigeLevel = (box.get('prestigeLevel') as int?) ?? 0;
-    final prestigeMultiplier = 1.0 + prestigeLevel * 0.5;
     final newsMultiplier = (box.get('newsMultiplier') as num?)?.toDouble() ?? 1.0;
     final newsTime = (box.get('newsTimeRemaining') as int?) ?? 0;
-    final newsText = (box.get('currentNewsText') as String?) ?? '📊 Рынок стабилен';
+    final newsText = (box.get('currentNewsText') as String?) ?? 'Рынок стабилен';
     final adminUnlocked = (box.get('adminUnlocked') as bool?) ?? false;
-
     final savedBiz = box.get('businesses') as List?;
     final businesses = s.businesses;
     if (savedBiz != null) {
@@ -732,7 +656,6 @@ class GameNotifier extends StateNotifier<GameState> {
         businesses[i].fromMap(Map.from(savedBiz[i] as Map));
       }
     }
-
     final savedStocks = box.get('stocks') as List?;
     final stocks = s.stocks;
     if (savedStocks != null) {
@@ -745,46 +668,21 @@ class GameNotifier extends StateNotifier<GameState> {
         if (h != null) stocks[i].history = h.map((e) => (e as num).toDouble()).toList();
       }
     }
-
     state = GameState(
       money: money, totalEarned: totalEarned, tapPower: tapPower,
-      prestigeLevel: prestigeLevel, prestigeMultiplier: prestigeMultiplier,
+      prestigeLevel: prestigeLevel, prestigeMultiplier: 1.0 + prestigeLevel * 0.5,
       newsMultiplier: newsMultiplier, newsTimeRemaining: newsTime,
       currentNewsText: newsText, businesses: businesses, stocks: stocks,
       rivals: s.rivals, investments: s.investments,
-      taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
-      adminUnlocked: adminUnlocked,
+      taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt, adminUnlocked: adminUnlocked,
     );
   }
-  void loadFromServer(Map<String, dynamic> serverData) {
-    try {
-      final s = state;
-      final money = (serverData['money'] as num?)?.toDouble() ?? 10;
-      final totalEarned = (serverData['totalEarned'] as num?)?.toDouble() ?? 10;
-      final prestigeLevel = (serverData['prestigeLevel'] as int?) ?? 0;
-      final prestigeMultiplier = 1.0 + prestigeLevel * 0.5;
-      final businesses = s.businesses;
-      final savedBiz = serverData['businesses'] as List?;
-      if (savedBiz != null) {
-        for (int i = 0; i < businesses.length && i < savedBiz.length; i++) {
-          businesses[i].fromMap(Map<String, dynamic>.from(savedBiz[i] as Map));
-        }
-      }
-      state = GameState(
-        money: money, totalEarned: totalEarned, tapPower: s.tapPower,
-        prestigeLevel: prestigeLevel, prestigeMultiplier: prestigeMultiplier,
-        newsMultiplier: s.newsMultiplier, newsTimeRemaining: s.newsTimeRemaining,
-        currentNewsText: s.currentNewsText, currentTab: s.currentTab,
-        businesses: businesses, investments: s.investments, stocks: s.stocks,
-        rivals: s.rivals, taxRate: s.taxRate, totalTaxDebt: s.totalTaxDebt,
-        adminUnlocked: s.adminUnlocked,
-      );
-    } catch (_) {}
-  }
+
   @override
   void dispose() {
     _gameTimer?.cancel();
     _saveTimer?.cancel();
+    _serverSaveTimer?.cancel();
     _newsTimer?.cancel();
     _stockTimer?.cancel();
     _rivalTimer?.cancel();

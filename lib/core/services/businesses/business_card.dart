@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/services/game_provider.dart';
-import '../../core/services/audio_service.dart';
 import '../../core/models/game_models.dart';
 import '../../core/theme.dart';
 import '../../core/utils/number_formatter.dart';
 import '../../widgets/glass_container.dart';
-import 'business_icon.dart';
 
 class BusinessCard extends ConsumerStatefulWidget {
   final int index;
@@ -56,7 +54,7 @@ class _BusinessCardState extends ConsumerState<BusinessCard>
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: AppColors.accent.withOpacity(0.3)),
                     ),
-                    child: Center(child: BusinessIcon(iconId: b.icon, size: 30)),
+                    child: Center(child: Text(b.icon, style: const TextStyle(fontSize: 26))),
                   ),
                   if (b.owned > 0)
                     Positioned(
@@ -68,7 +66,7 @@ class _BusinessCardState extends ConsumerState<BusinessCard>
                           color: AppColors.accent,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text('x${b.owned}',
+                        child: Text('×${b.owned}',
                             style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -100,7 +98,7 @@ class _BusinessCardState extends ConsumerState<BusinessCard>
                     ),
                     const SizedBox(height: 3),
                     if (b.owned > 0)
-                      Text('${NumberFormatter.format(income)}/${b.cycleTime.toStringAsFixed(0)}c',
+                      Text('${NumberFormatter.format(income)}/${b.cycleTime.toStringAsFixed(0)}с',
                           style: const TextStyle(color: AppColors.accentLight, fontSize: 12))
                     else
                       Text('Стоимость: ${NumberFormatter.format(b.cost)}',
@@ -121,17 +119,14 @@ class _BusinessCardState extends ConsumerState<BusinessCard>
                 child: _ActionButton(
                   label: b.owned == 0 ? 'Купить' : '+ ещё ${NumberFormatter.format(b.cost)}',
                   enabled: canAfford,
-                  onTap: () {
-                    ref.read(gameProvider.notifier).buyBusiness(widget.index);
-                    ref.read(audioServiceProvider).playBuy();
-                  },
+                  onTap: () => ref.read(gameProvider.notifier).buyBusiness(widget.index),
                   color: AppColors.accent,
                 ),
               ),
               const SizedBox(width: 8),
               if (b.owned > 0 && !b.hasManager) ...[
                 _ActionButton(
-                  label: b.isRunning ? 'Идёт' : 'Старт',
+                  label: b.isRunning ? '▶ Идёт' : '▶ Запуск',
                   enabled: !b.isRunning && !b.isStopped,
                   onTap: () => ref.read(gameProvider.notifier).runBusiness(widget.index),
                   color: const Color(0xFF3498DB),
@@ -142,12 +137,9 @@ class _BusinessCardState extends ConsumerState<BusinessCard>
               if (b.owned > 0) ...[
                 if (!b.hasManager)
                   _ActionButton(
-                    label: 'Авто',
+                    label: '🤖',
                     enabled: canAffordManager,
-                    onTap: () {
-                      ref.read(gameProvider.notifier).buyManager(widget.index);
-                      ref.read(audioServiceProvider).playBuy();
-                    },
+                    onTap: () => ref.read(gameProvider.notifier).buyManager(widget.index),
                     color: AppColors.purple,
                     small: true,
                     tooltip: 'Менеджер: ${NumberFormatter.format(b.managerCost)}',
@@ -160,7 +152,7 @@ class _BusinessCardState extends ConsumerState<BusinessCard>
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: AppColors.purple.withOpacity(0.4)),
                     ),
-                    child: const Text('Авто',
+                    child: const Text('🤖 Авто',
                         style: TextStyle(color: AppColors.purple, fontSize: 11, fontWeight: FontWeight.bold)),
                   ),
               ],
@@ -270,7 +262,7 @@ class _UpgradesRow extends ConsumerWidget {
   final int businessIndex;
   const _UpgradesRow({required this.businessIndex});
 
-  static const _upgradeLabels = ['x2', 'x5', 'x10'];
+  static const _upgradeLabels = ['×2', '×5', '×10'];
   static const _upgradeColors = [
     Color(0xFF3498DB),
     Color(0xFF9B59B6),
@@ -303,10 +295,18 @@ class _UpgradesRow extends ConsumerWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     decoration: BoxDecoration(
-                      color: bought ? _upgradeColors[i].withOpacity(0.2) : canAfford ? _upgradeColors[i].withOpacity(0.1) : AppColors.glass,
+                      color: bought
+                          ? _upgradeColors[i].withOpacity(0.2)
+                          : canAfford
+                              ? _upgradeColors[i].withOpacity(0.1)
+                              : AppColors.glass,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: bought ? _upgradeColors[i] : canAfford ? _upgradeColors[i].withOpacity(0.4) : AppColors.glassBorder,
+                        color: bought
+                            ? _upgradeColors[i]
+                            : canAfford
+                                ? _upgradeColors[i].withOpacity(0.4)
+                                : AppColors.glassBorder,
                       ),
                     ),
                     child: Column(
@@ -323,10 +323,12 @@ class _UpgradesRow extends ConsumerWidget {
                           ],
                         ),
                         if (!bought)
-                          Text(NumberFormatter.format(cost),
-                              style: TextStyle(
-                                  color: canAfford ? _upgradeColors[i] : AppColors.textColor.withOpacity(0.4),
-                                  fontSize: 9)),
+                          Text(
+                            NumberFormatter.format(cost),
+                            style: TextStyle(
+                                color: canAfford ? _upgradeColors[i] : AppColors.textColor.withOpacity(0.4),
+                                fontSize: 9),
+                          ),
                       ],
                     ),
                   ),
@@ -350,7 +352,7 @@ class _UpgradesRow extends ConsumerWidget {
                 border: Border.all(color: AppColors.purple.withOpacity(0.4)),
               ),
               child: Text(
-                'Уровень ${b.level} -> ${b.level + 1}: ${NumberFormatter.format(b.cost * 100 * b.level)}',
+                'Уровень ${b.level} → ${b.level + 1}: ${NumberFormatter.format(b.cost * 100 * b.level)}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: AppColors.purple, fontSize: 12, fontWeight: FontWeight.bold),
               ),

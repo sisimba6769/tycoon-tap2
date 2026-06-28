@@ -18,6 +18,12 @@ class AppColors {
   static const cardBg = Color(0x1A1D9E75);
   static const negative = Color(0xFFE74C3C);
   static const warning = Color(0xFFF39C12);
+
+  // Light theme colors
+  static const lightBackground = Color(0xFFF0F0F5);
+  static const lightText = Color(0xFF1A1A2E);
+  static const lightGlass = Color(0x1A000000);
+  static const lightGlassBorder = Color(0x33000000);
 }
 
 class AppTheme {
@@ -44,6 +50,12 @@ class AppTheme {
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         ),
+        switchTheme: SwitchThemeData(
+          thumbColor: MaterialStateProperty.resolveWith((states) =>
+              states.contains(MaterialState.selected) ? AppColors.accent : Colors.grey),
+          trackColor: MaterialStateProperty.resolveWith((states) =>
+              states.contains(MaterialState.selected) ? AppColors.accent.withOpacity(0.5) : Colors.grey.withOpacity(0.3)),
+        ),
       );
 
   static ThemeData get lightTheme => ThemeData(
@@ -52,12 +64,28 @@ class AppTheme {
         colorScheme: const ColorScheme.light(
           primary: AppColors.accent,
           secondary: AppColors.purple,
-          surface: Color(0xFFF5F5F5),
-          background: Color(0xFFEEEEF5),
+          surface: Color(0xFFFFFFFF),
+          background: AppColors.lightBackground,
           onPrimary: Colors.white,
-          onSurface: Color(0xFF1A1A2E),
+          onSurface: AppColors.lightText,
         ),
-        scaffoldBackgroundColor: const Color(0xFFEEEEF5),
+        scaffoldBackgroundColor: AppColors.lightBackground,
         fontFamily: 'Roboto',
+        textTheme: const TextTheme(
+          displayLarge: TextStyle(color: AppColors.lightText, fontWeight: FontWeight.bold),
+          bodyLarge: TextStyle(color: AppColors.lightText),
+          bodyMedium: TextStyle(color: Color(0xFF555566)),
+        ),
+        cardTheme: CardTheme(
+          color: Colors.white.withOpacity(0.8),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        ),
+        switchTheme: SwitchThemeData(
+          thumbColor: MaterialStateProperty.resolveWith((states) =>
+              states.contains(MaterialState.selected) ? AppColors.accent : Colors.grey),
+          trackColor: MaterialStateProperty.resolveWith((states) =>
+              states.contains(MaterialState.selected) ? AppColors.accent.withOpacity(0.5) : Colors.grey.withOpacity(0.3)),
+        ),
       );
 }
