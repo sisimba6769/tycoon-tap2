@@ -28,31 +28,52 @@ class TabNavigator extends ConsumerWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final n = _tabs.length;
-            final tabWidth = constraints.maxWidth / n;
             return Stack(
               children: [
-                // Smoothly sliding selected pill.
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 280),
-                  curve: Curves.easeOutCubic,
-                  left: currentTab * tabWidth,
-                  top: 0,
-                  bottom: 0,
-                  width: tabWidth,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.accent, Color(0xFF0F6B50)],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accent.withOpacity(0.4),
-                          blurRadius: 12,
-                          spreadRadius: 1,
+                // Green highlight that fills the selected tab left-to-right.
+                Positioned.fill(
+                  child: Row(
+                    children: List.generate(n, (i) {
+                      if (i != currentTab) {
+                        return const Expanded(child: SizedBox());
+                      }
+                      return Expanded(
+                        child: TweenAnimationBuilder<double>(
+                          key: ValueKey<int>(currentTab),
+                          tween: Tween<double>(begin: 0.0, end: 1.0),
+                          duration: const Duration(milliseconds: 320),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, t, _) {
+                            return Align(
+                              alignment: Alignment.centerLeft,
+                              child: FractionallySizedBox(
+                                widthFactor: t,
+                                heightFactor: 1.0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        AppColors.accent,
+                                        Color(0xFF0F6B50)
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            AppColors.accent.withOpacity(0.4),
+                                        blurRadius: 12,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ],
-                    ),
+                      );
+                    }),
                   ),
                 ),
                 Row(

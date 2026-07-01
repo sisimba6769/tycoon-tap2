@@ -54,6 +54,9 @@ class AudioService {
   Future<void> playBuy() async {
     if (!_soundEnabled) return;
     try {
+      // In low-latency mode the player stays in a completed state after the
+      // first play, so stop() first to reset it, otherwise it only fires once.
+      await _buyPlayer.stop();
       await _buyPlayer.play(AssetSource('sounds/buy.mp3'), volume: _volume);
     } catch (e) {
       print('playBuy error: $e');
@@ -63,6 +66,7 @@ class AudioService {
   Future<void> playPrestige() async {
     if (!_soundEnabled) return;
     try {
+      await _prestigePlayer.stop();
       await _prestigePlayer.play(AssetSource('sounds/prestige.mp3'), volume: _volume);
     } catch (e) {
       print('playPrestige error: $e');
