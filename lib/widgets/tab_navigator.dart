@@ -41,8 +41,8 @@ class TabNavigator extends ConsumerWidget {
                         child: TweenAnimationBuilder<double>(
                           key: ValueKey<int>(currentTab),
                           tween: Tween<double>(begin: 0.0, end: 1.0),
-                          duration: const Duration(milliseconds: 320),
-                          curve: Curves.easeOutCubic,
+                          duration: const Duration(milliseconds: 20),
+                          curve: Curves.easeOut,
                           builder: (context, t, _) {
                             return Align(
                               alignment: Alignment.centerLeft,
