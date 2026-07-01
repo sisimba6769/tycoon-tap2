@@ -19,7 +19,7 @@ class TaxesTab extends ConsumerWidget {
       children: [
         Row(
           children: [
-            const Text(
+            Text(
               '🧾 Налоги',
               style: TextStyle(
                   color: AppColors.textColor,
@@ -152,7 +152,7 @@ class TaxesTab extends ConsumerWidget {
                     children: [
                       Text(
                         b.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.textColor,
                             fontWeight: FontWeight.bold,
                             fontSize: 13),

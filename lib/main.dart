@@ -28,6 +28,7 @@ class TycoonTapApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = ref.watch(themeProvider);
+    AppColors.isDark = isDark;
     return MaterialApp(
       title: 'TycoonTap',
       debugShowCheckedModeBanner: false,
@@ -71,13 +72,31 @@ class AppNavigator extends ConsumerStatefulWidget {
   ConsumerState<AppNavigator> createState() => _AppNavigatorState();
 }
 
-class _AppNavigatorState extends ConsumerState<AppNavigator> {
+class _AppNavigatorState extends ConsumerState<AppNavigator> with WidgetsBindingObserver {
   bool _loaded = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadServerProgress();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    final notifier = ref.read(gameProvider.notifier);
+    if (lifecycle == AppLifecycleState.resumed) {
+      notifier.resumeGame();
+    } else if (lifecycle == AppLifecycleState.paused ||
+        lifecycle == AppLifecycleState.detached) {
+      notifier.pauseGame();
+    }
   }
 
   Future<void> _loadServerProgress() async {
@@ -85,6 +104,9 @@ class _AppNavigatorState extends ConsumerState<AppNavigator> {
     if (progress != null && mounted) {
       ref.read(gameProvider.notifier).loadFromServer(Map<String, dynamic>.from(progress));
     }
+    // Apply offline earnings AFTER server progress is loaded, so they are not
+    // overwritten by the server snapshot.
+    ref.read(gameProvider.notifier).applyOfflineProgress();
     if (mounted) setState(() => _loaded = true);
   }
 

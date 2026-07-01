@@ -98,7 +98,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           _step == 0
                               ? (_isLogin ? 'Добро пожаловать!' : 'Как тебя зовут?')
                               : (_isLogin ? 'Введи пароль' : 'Придумай пароль'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textColor,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -234,7 +234,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return TextField(
       controller: controller,
       obscureText: obscure,
-      style: const TextStyle(color: AppColors.textColor),
+      style: TextStyle(color: AppColors.textColor),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(color: AppColors.textColor.withOpacity(0.4)),
@@ -243,11 +243,11 @@ class _AuthScreenState extends State<AuthScreen> {
         fillColor: AppColors.glass,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.glassBorder),
+          borderSide: BorderSide(color: AppColors.glassBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.glassBorder),
+          borderSide: BorderSide(color: AppColors.glassBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

@@ -19,7 +19,7 @@ class PrestigeTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
+        Text(
           '⭐ Престиж',
           style: TextStyle(
               color: AppColors.textColor,
@@ -271,7 +271,7 @@ class PrestigeTab extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0F0F1A),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('⭐ Подтвердить Престиж',
+        title: Text('⭐ Подтвердить Престиж',
             style: TextStyle(color: AppColors.textColor)),
         content: const Text(
           'Ты потеряешь все бизнесы, деньги и менеджеров, но получишь постоянный бонус к доходу!',
@@ -315,7 +315,7 @@ class _RivalsSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '🏆 Рейтинг конкурентов',
             style: TextStyle(
                 color: AppColors.textColor,

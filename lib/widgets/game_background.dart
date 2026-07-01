@@ -10,7 +10,7 @@ class GameBackground extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.background,
       ),
       child: Stack(

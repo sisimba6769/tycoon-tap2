@@ -27,7 +27,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          color: Colors.black.withOpacity(0.6),
+          color: AppColors.isDark ? Colors.black.withOpacity(0.6) : Colors.white.withOpacity(0.7),
           child: SafeArea(
             child: Column(
               children: [
@@ -38,10 +38,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.arrow_back_ios,
+                        icon: Icon(Icons.arrow_back_ios,
                             color: AppColors.textColor),
                       ),
-                      const Text(
+                      Text(
                         'Настройки',
                         style: TextStyle(
                             color: AppColors.textColor,
@@ -62,7 +62,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               '🎨 Оформление',
                               style: TextStyle(
                                   color: AppColors.textColor,
@@ -109,7 +109,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               '🔊 Звук',
                               style: TextStyle(
                                   color: AppColors.textColor,
@@ -246,7 +246,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0F0F1A),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Сброс игры',
+        title: Text('Сброс игры',
             style: TextStyle(color: AppColors.textColor)),
         content: const Text(
           'Вся игра будет сброшена до начального состояния. Это действие нельзя отменить!',

@@ -102,6 +102,16 @@ class GameState {
     StockData(ticker: 'BTCX', companyName: 'BitcoinEx', currentPrice: 45000, volatility: 0.12, dividendYield: 0.0),
     StockData(ticker: 'AIRB', companyName: 'AirBnb Plus', currentPrice: 180, volatility: 0.05, dividendYield: 0.008),
     StockData(ticker: 'FOOD', companyName: 'FoodDelivery', currentPrice: 95, volatility: 0.06, dividendYield: 0.012),
+    StockData(ticker: 'META', companyName: 'MetaVerse Inc', currentPrice: 480, volatility: 0.05, dividendYield: 0.004),
+    StockData(ticker: 'MSFT', companyName: 'MicroSys', currentPrice: 410, volatility: 0.03, dividendYield: 0.008),
+    StockData(ticker: 'NFLX', companyName: 'NetFlixx', currentPrice: 620, volatility: 0.06, dividendYield: 0.0),
+    StockData(ticker: 'DISN', companyName: 'DisneyLand Co', currentPrice: 105, volatility: 0.04, dividendYield: 0.01),
+    StockData(ticker: 'UBER', companyName: 'UberGo', currentPrice: 72, volatility: 0.07, dividendYield: 0.0),
+    StockData(ticker: 'COIN', companyName: 'CoinBaseX', currentPrice: 250, volatility: 0.11, dividendYield: 0.0),
+    StockData(ticker: 'ETHX', companyName: 'Ethereum Fund', currentPrice: 3200, volatility: 0.13, dividendYield: 0.0),
+    StockData(ticker: 'AURM', companyName: 'GoldReserve', currentPrice: 1950, volatility: 0.02, dividendYield: 0.006),
+    StockData(ticker: 'SOLR', companyName: 'SolarMax', currentPrice: 88, volatility: 0.08, dividendYield: 0.015),
+    StockData(ticker: 'KOLA', companyName: 'KolaDrinks', currentPrice: 60, volatility: 0.02, dividendYield: 0.03),
   ];
 
   static List<RivalData> _defaultRivals() => [
@@ -141,11 +151,13 @@ class GameNotifier extends StateNotifier<GameState> {
 
   GameNotifier() : super(GameState()) {
     _loadGame();
-    _applyOfflineProgress();
     _startTimers();
   }
 
-  void _applyOfflineProgress() {
+  /// Credits earnings for the time the app was closed or minimized.
+  /// Only businesses with a manager earn while away, capped at 8 hours.
+  /// Public so it can be called after server progress loads and on resume.
+  void applyOfflineProgress() {
     final box = Hive.box('game');
     final lastSaved = box.get('lastSaved') as int?;
     if (lastSaved == null) return;
@@ -192,9 +204,40 @@ class GameNotifier extends StateNotifier<GameState> {
         adminUnlocked: s.adminUnlocked,
       );
     }
+    // Reset the baseline so the same offline period is never counted twice.
+    box.put('lastSaved', DateTime.now().millisecondsSinceEpoch);
+  }
+
+  /// Called when the app goes to the background or is closing.
+  /// Persists a timestamp and stops the real-time loop so the game cannot keep
+  /// earning at full speed while hidden (this caused the "x10 while minimized" bug).
+  void pauseGame() {
+    _saveGame();
+    _saveToServer();
+    _gameTimer?.cancel();
+    _saveTimer?.cancel();
+    _serverSaveTimer?.cancel();
+    _newsTimer?.cancel();
+    _stockTimer?.cancel();
+    _rivalTimer?.cancel();
+    _taxTimer?.cancel();
+  }
+
+  /// Called when the app returns to the foreground.
+  /// Credits away-earnings once, then restarts the loop.
+  void resumeGame() {
+    applyOfflineProgress();
+    _startTimers();
   }
 
   void _startTimers() {
+    _gameTimer?.cancel();
+    _saveTimer?.cancel();
+    _serverSaveTimer?.cancel();
+    _newsTimer?.cancel();
+    _stockTimer?.cancel();
+    _rivalTimer?.cancel();
+    _taxTimer?.cancel();
     _gameTimer = Timer.periodic(const Duration(milliseconds: 100), _gameTick);
     _saveTimer = Timer.periodic(const Duration(seconds: 5), (_) => _saveGame());
     _serverSaveTimer = Timer.periodic(const Duration(seconds: 5), (_) => _saveToServer());

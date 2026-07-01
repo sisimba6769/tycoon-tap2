@@ -81,7 +81,7 @@ class _BusinessCardState extends ConsumerState<BusinessCard>
                       children: [
                         Expanded(
                           child: Text(b.name,
-                              style: const TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold, fontSize: 14)),
+                              style: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold, fontSize: 14)),
                         ),
                         if (b.level > 1)
                           Container(
@@ -177,7 +177,7 @@ class _BusinessCardState extends ConsumerState<BusinessCard>
           ),
           if (_expanded && b.owned > 0) ...[
             const SizedBox(height: 10),
-            const Divider(color: AppColors.glassBorder, height: 1),
+            Divider(color: AppColors.glassBorder, height: 1),
             const SizedBox(height: 10),
             _UpgradesRow(businessIndex: widget.index),
           ],
@@ -339,7 +339,7 @@ class _UpgradesRow extends ConsumerWidget {
         ),
         if (b.level < 4) ...[
           const SizedBox(height: 8),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.glassBorder, height: 1),
           const SizedBox(height: 8),
           GestureDetector(
             onTap: () => ref.read(gameProvider.notifier).upgradeBusiness(businessIndex),

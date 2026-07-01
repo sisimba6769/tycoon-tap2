@@ -61,10 +61,10 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back_ios,
+                    icon: Icon(Icons.arrow_back_ios,
                         color: AppColors.textColor),
                   ),
-                  const Text(
+                  Text(
                     '⚙️ Админ Панель',
                     style: TextStyle(
                         color: AppColors.textColor,
@@ -94,7 +94,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             style: TextStyle(fontSize: 64),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Введите PIN-код',
             style: TextStyle(
                 color: AppColors.textColor,
@@ -164,7 +164,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                           child: Center(
                             child: Text(
                               d,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: AppColors.textColor,
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold),
@@ -211,7 +211,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         const SizedBox(height: 16),
 
         // Money buttons
-        const Text(
+        Text(
           '💰 Добавить деньги',
           style: TextStyle(
               color: AppColors.textColor,
@@ -247,7 +247,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         const SizedBox(height: 16),
 
         // Business actions
-        const Text(
+        Text(
           '🏢 Бизнесы',
           style: TextStyle(
               color: AppColors.textColor,

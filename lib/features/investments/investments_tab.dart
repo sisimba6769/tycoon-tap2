@@ -30,7 +30,7 @@ class InvestmentsTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
+        Text(
           '📈 Инвестиции',
           style: TextStyle(
             color: AppColors.textColor,
@@ -68,7 +68,7 @@ class InvestmentsTab extends ConsumerWidget {
                         children: [
                           Text(
                             inv.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textColor,
                               fontWeight: FontWeight.bold,
                               fontSize: 15,

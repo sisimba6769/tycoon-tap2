@@ -19,7 +19,7 @@ class BusinessesTab extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              const Text('🏢 Бизнесы',
+              Text('🏢 Бизнесы',
                   style: TextStyle(color: AppColors.textColor, fontSize: 18, fontWeight: FontWeight.bold)),
               const Spacer(),
               Container(

@@ -8,22 +8,33 @@ final themeProvider = StateProvider<bool>((ref) {
 });
 
 class AppColors {
-  static const background = Color(0xFF0A0A0F);
+  /// Global theme flag. Updated from the root widget on every rebuild so that
+  /// the adaptive getters below return the right colors for the active theme.
+  static bool isDark = true;
+
+  // --- Theme-adaptive colors (getters, so they follow [isDark]) ---
+  static Color get background =>
+      isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF0F0F5);
+  static Color get textColor =>
+      isDark ? const Color(0xFFF0F0F0) : const Color(0xFF1A1A2E);
+  static Color get glass =>
+      isDark ? const Color(0x1AFFFFFF) : const Color(0x0D000000);
+  static Color get glassBorder =>
+      isDark ? const Color(0x33FFFFFF) : const Color(0x1F000000);
+
+  // --- Fixed accent colors (same in both themes) ---
   static const accent = Color(0xFF1D9E75);
   static const accentLight = Color(0xFF2FCF99);
   static const purple = Color(0xFF7F77DD);
-  static const textColor = Color(0xFFF0F0F0);
-  static const glass = Color(0x1AFFFFFF);
-  static const glassBorder = Color(0x33FFFFFF);
   static const cardBg = Color(0x1A1D9E75);
   static const negative = Color(0xFFE74C3C);
   static const warning = Color(0xFFF39C12);
 
-  // Light theme colors
+  // Light theme reference colors
   static const lightBackground = Color(0xFFF0F0F5);
   static const lightText = Color(0xFF1A1A2E);
-  static const lightGlass = Color(0x1A000000);
-  static const lightGlassBorder = Color(0x33000000);
+  static const lightGlass = Color(0x0D000000);
+  static const lightGlassBorder = Color(0x1F000000);
 }
 
 class AppTheme {
@@ -34,19 +45,19 @@ class AppTheme {
           primary: AppColors.accent,
           secondary: AppColors.purple,
           surface: Color(0xFF0F0F1A),
-          background: AppColors.background,
+          background: Color(0xFF0A0A0F),
           onPrimary: Colors.white,
-          onSurface: AppColors.textColor,
+          onSurface: Color(0xFFF0F0F0),
         ),
-        scaffoldBackgroundColor: AppColors.background,
+        scaffoldBackgroundColor: const Color(0xFF0A0A0F),
         fontFamily: 'Roboto',
         textTheme: const TextTheme(
-          displayLarge: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold),
-          bodyLarge: TextStyle(color: AppColors.textColor),
+          displayLarge: TextStyle(color: Color(0xFFF0F0F0), fontWeight: FontWeight.bold),
+          bodyLarge: TextStyle(color: Color(0xFFF0F0F0)),
           bodyMedium: TextStyle(color: Color(0xFFB0B0C0)),
         ),
         cardTheme: CardTheme(
-          color: AppColors.glass,
+          color: const Color(0x1AFFFFFF),
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         ),

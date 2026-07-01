@@ -18,7 +18,7 @@ class StocksTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
+        Text(
           '📊 Биржа',
           style: TextStyle(
               color: AppColors.textColor,
@@ -59,7 +59,7 @@ class StocksTab extends ConsumerWidget {
                     child: Row(
                       children: [
                         Text(s.ticker,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: AppColors.textColor,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13)),
@@ -128,7 +128,7 @@ class _StockCardState extends ConsumerState<_StockCard> {
                 children: [
                   Text(
                     s.ticker,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -243,7 +243,7 @@ class _StockCardState extends ConsumerState<_StockCard> {
                     ),
                     Text(
                       '$_qty',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.textColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 14),
