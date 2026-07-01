@@ -123,8 +123,14 @@ class _BalanceDisplay extends ConsumerWidget {
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [AppColors.accentLight, Color(0xFF7FE8C9)],
               ).createShader(bounds),
-              child: Text(NumberFormatter.format(game.money),
-                  style: const TextStyle(color: Colors.white, fontSize: 34, fontWeight: FontWeight.bold, height: 1.1)),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween<double>(end: game.money),
+                duration: const Duration(milliseconds: 450),
+                curve: Curves.easeOut,
+                builder: (context, value, _) => Text(
+                    NumberFormatter.format(value),
+                    style: const TextStyle(color: Colors.white, fontSize: 34, fontWeight: FontWeight.bold, height: 1.1)),
+              ),
             ),
             const SizedBox(height: 4),
             Row(

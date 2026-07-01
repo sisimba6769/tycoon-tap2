@@ -25,59 +25,81 @@ class TabNavigator extends ConsumerWidget {
       child: GlassContainer(
         padding: const EdgeInsets.all(4),
         borderRadius: 20,
-        child: Row(
-          children: List.generate(_tabs.length, (i) {
-            final isSelected = i == currentTab;
-            return Expanded(
-              child: GestureDetector(
-                onTap: () => ref.read(gameProvider.notifier).setTab(i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    gradient: isSelected
-                        ? const LinearGradient(
-                            colors: [AppColors.accent, Color(0xFF0F6B50)],
-                          )
-                        : null,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: AppColors.accent.withOpacity(0.4),
-                              blurRadius: 10,
-                              spreadRadius: 1,
-                            )
-                          ]
-                        : null,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _tabs[i].$1,
-                        style: const TextStyle(fontSize: 16),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final n = _tabs.length;
+            final tabWidth = constraints.maxWidth / n;
+            return Stack(
+              children: [
+                // Smoothly sliding selected pill.
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 280),
+                  curve: Curves.easeOutCubic,
+                  left: currentTab * tabWidth,
+                  top: 0,
+                  bottom: 0,
+                  width: tabWidth,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.accent, Color(0xFF0F6B50)],
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _tabs[i].$2,
-                        style: TextStyle(
-                          fontSize: 9,
-                          color: isSelected
-                              ? Colors.white
-                              : AppColors.textColor.withOpacity(0.6),
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.accent.withOpacity(0.4),
+                          blurRadius: 12,
+                          spreadRadius: 1,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
+                Row(
+                  children: List.generate(n, (i) {
+                    final isSelected = i == currentTab;
+                    return Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => ref.read(gameProvider.notifier).setTab(i),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedScale(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeOutBack,
+                                scale: isSelected ? 1.2 : 1.0,
+                                child: Text(
+                                  _tabs[i].$1,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 250),
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.textColor.withOpacity(0.6),
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                                child: Text(_tabs[i].$2),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ],
             );
-          }),
+          },
         ),
       ),
     );

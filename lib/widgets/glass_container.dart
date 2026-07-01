@@ -23,7 +23,7 @@ class GlassContainer extends StatelessWidget {
     this.padding,
     this.margin,
     this.borderRadius = 18,
-    this.blur = 20,
+    this.blur = 26,
     this.color,
     this.borderColor,
     this.shadows,
@@ -40,19 +40,46 @@ class GlassContainer extends StatelessWidget {
           width: width,
           height: height,
           padding: padding ?? const EdgeInsets.all(16),
+          // Top specular sheen painted over the content for a glassy look.
+          foregroundDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(borderRadius),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.white.withOpacity(0.10),
+                Colors.white.withOpacity(0.0),
+              ],
+              stops: const [0.0, 0.18],
+            ),
+          ),
           decoration: BoxDecoration(
-            color: color ?? AppColors.glass,
+            // Liquid-glass fill: a soft diagonal white gradient when no explicit
+            // color is given, otherwise the caller's solid color.
+            color: color,
+            gradient: color == null
+                ? const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0x26FFFFFF), Color(0x0DFFFFFF)],
+                  )
+                : null,
             borderRadius: BorderRadius.circular(borderRadius),
             border: Border.all(
               color: borderColor ?? AppColors.glassBorder,
-              width: 1,
+              width: 1.2,
             ),
             boxShadow: shadows ??
                 [
                   BoxShadow(
                     color: AppColors.cardShadow,
-                    blurRadius: 20,
-                    offset: const Offset(0, 4),
+                    blurRadius: 24,
+                    offset: const Offset(0, 6),
+                  ),
+                  BoxShadow(
+                    color: AppColors.accent.withOpacity(0.06),
+                    blurRadius: 30,
+                    spreadRadius: -4,
                   ),
                 ],
           ),

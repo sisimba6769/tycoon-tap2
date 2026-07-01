@@ -134,6 +134,9 @@ class GameNotifier extends StateNotifier<GameState> {
   Timer? _rivalTimer;
   Timer? _taxTimer;
   final Random _random = Random();
+  /// Amount earned during the last offline period; read by the UI to show a
+  /// "while you were away" popup, then reset to 0.
+  double lastOfflineEarned = 0;
   final List<NewsItem> _allNews = [
     NewsItem(text: 'Экономический бум!', multiplier: 2.0, duration: 30, positive: true),
     NewsItem(text: 'Финансовый кризис!', multiplier: 0.5, duration: 20, positive: false),
@@ -158,6 +161,7 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Only businesses with a manager earn while away, capped at 8 hours.
   /// Public so it can be called after server progress loads and on resume.
   void applyOfflineProgress() {
+    lastOfflineEarned = 0;
     final box = Hive.box('game');
     final cleanPause = box.get('cleanPause', defaultValue: false) as bool;
     final lastSaved = box.get('lastSaved') as int?;
@@ -210,6 +214,7 @@ class GameNotifier extends StateNotifier<GameState> {
         totalTaxDebt: s.totalTaxDebt,
         adminUnlocked: s.adminUnlocked,
       );
+      lastOfflineEarned = earned;
     }
   }
 
@@ -330,9 +335,10 @@ class GameNotifier extends StateNotifier<GameState> {
     );
   }
 
-  void tap() {
+  void tap({double multiplier = 1.0}) {
     final s = state;
-    final income = s.tapPower * s.prestigeMultiplier * s.newsMultiplier;
+    final income =
+        s.tapPower * s.prestigeMultiplier * s.newsMultiplier * multiplier;
     state = _copyWith(earned: income);
   }
 

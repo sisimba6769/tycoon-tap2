@@ -17,7 +17,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
-    final isDark = ref.watch(themeProvider);
     final audio = ref.read(audioServiceProvider);
     final soundEnabled = audio.soundEnabled;
     final volume = audio.volume;
@@ -56,53 +55,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     children: [
-                      // Theme section
-                      GlassContainer(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '🎨 Оформление',
-                              style: TextStyle(
-                                  color: AppColors.textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _ThemeButton(
-                                    label: '🌙 Тёмная',
-                                    selected: isDark,
-                                    onTap: () {
-                                      ref
-                                          .read(themeProvider.notifier)
-                                          .state = true;
-                                      Hive.box('settings').put('darkTheme', true);
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _ThemeButton(
-                                    label: '☀️ Светлая',
-                                    selected: !isDark,
-                                    onTap: () {
-                                      ref
-                                          .read(themeProvider.notifier)
-                                          .state = false;
-                                      Hive.box('settings').put('darkTheme', false);
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
                       // Sound section
                       GlassContainer(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -274,41 +226,4 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 }
 
-class _ThemeButton extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
 
-  const _ThemeButton(
-      {required this.label, required this.selected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          gradient: selected
-              ? const LinearGradient(
-                  colors: [AppColors.accent, Color(0xFF0F6B50)])
-              : null,
-          color: selected ? null : AppColors.glass,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: selected
-                  ? AppColors.accent.withOpacity(0.5)
-                  : AppColors.glassBorder),
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: selected ? Colors.white : AppColors.textColor.withOpacity(0.6),
-            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
-}

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +36,10 @@ class _TapButtonState extends ConsumerState<TapButton>
   final List<FloatingText> _floatingTexts = [];
   final Random _random = Random();
 
+  // Tap combo: rapid taps build a multiplier up to x5 that decays when idle.
+  int _combo = 0;
+  Timer? _comboTimer;
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +62,7 @@ class _TapButtonState extends ConsumerState<TapButton>
 
   @override
   void dispose() {
+    _comboTimer?.cancel();
     _scaleController.dispose();
     _glowController.dispose();
     super.dispose();
@@ -69,9 +75,22 @@ class _TapButtonState extends ConsumerState<TapButton>
 
   void _onTapUp(TapUpDetails details) {
     _scaleController.reverse();
+
+    // Build the combo. Each tap raises the multiplier; it resets after a short
+    // idle pause.
+    _combo++;
+    _comboTimer?.cancel();
+    _comboTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (mounted) setState(() => _combo = 0);
+    });
+    final comboMult = (1.0 + _combo * 0.15).clamp(1.0, 5.0);
+
     final game = ref.read(gameProvider);
-    final income = game.tapPower * game.prestigeMultiplier * game.newsMultiplier;
-    ref.read(gameProvider.notifier).tap();
+    final income = game.tapPower *
+        game.prestigeMultiplier *
+        game.newsMultiplier *
+        comboMult;
+    ref.read(gameProvider.notifier).tap(multiplier: comboMult);
     ref.read(audioServiceProvider).playTap();
 
     // Add floating text
@@ -111,6 +130,24 @@ class _TapButtonState extends ConsumerState<TapButton>
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Combo indicator
+          if (_combo > 3)
+            Positioned(
+              top: 2,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Text(
+                  '🔥 x${(1.0 + _combo * 0.15).clamp(1.0, 5.0).toStringAsFixed(1)}',
+                  style: const TextStyle(
+                    color: Color(0xFFF39C12),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    shadows: [Shadow(color: Color(0xFFE67E22), blurRadius: 10)],
+                  ),
+                ),
+              ),
+            ),
           // Floating texts
           ..._floatingTexts.map((ft) => Positioned(
                 left: 100 + ft.position.dx - 40,

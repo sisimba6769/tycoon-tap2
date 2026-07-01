@@ -17,8 +17,21 @@ class AudioService {
   }
 
   Future<void> _init() async {
-    await _buyPlayer.setReleaseMode(ReleaseMode.stop);
-    await _prestigePlayer.setReleaseMode(ReleaseMode.stop);
+    // Low-latency mode uses the native short-sound engine (SoundPool on
+    // Android) and the samples are pre-loaded once, so effects fire instantly
+    // instead of preparing a MediaPlayer on every play.
+    try {
+      await _buyPlayer.setPlayerMode(PlayerMode.lowLatency);
+      await _prestigePlayer.setPlayerMode(PlayerMode.lowLatency);
+      await _buyPlayer.setReleaseMode(ReleaseMode.stop);
+      await _prestigePlayer.setReleaseMode(ReleaseMode.stop);
+      await _buyPlayer.setVolume(_volume);
+      await _prestigePlayer.setVolume(_volume);
+      await _buyPlayer.setSource(AssetSource('sounds/buy.mp3'));
+      await _prestigePlayer.setSource(AssetSource('sounds/prestige.mp3'));
+    } catch (e) {
+      print('audio init error: $e');
+    }
   }
 
   void setSoundEnabled(bool enabled) {
@@ -29,6 +42,8 @@ class AudioService {
   void setVolume(double volume) {
     _volume = volume;
     Hive.box('settings').put('volume', volume);
+    _buyPlayer.setVolume(volume);
+    _prestigePlayer.setVolume(volume);
   }
 
   bool get soundEnabled => _soundEnabled;
@@ -39,9 +54,7 @@ class AudioService {
   Future<void> playBuy() async {
     if (!_soundEnabled) return;
     try {
-      await _buyPlayer.stop();
-      await _buyPlayer.setVolume(_volume);
-      await _buyPlayer.play(AssetSource('sounds/buy.mp3'));
+      await _buyPlayer.play(AssetSource('sounds/buy.mp3'), volume: _volume);
     } catch (e) {
       print('playBuy error: $e');
     }
@@ -50,9 +63,7 @@ class AudioService {
   Future<void> playPrestige() async {
     if (!_soundEnabled) return;
     try {
-      await _prestigePlayer.stop();
-      await _prestigePlayer.setVolume(_volume);
-      await _prestigePlayer.play(AssetSource('sounds/prestige.mp3'));
+      await _prestigePlayer.play(AssetSource('sounds/prestige.mp3'), volume: _volume);
     } catch (e) {
       print('playPrestige error: $e');
     }

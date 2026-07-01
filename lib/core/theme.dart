@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-final themeProvider = StateProvider<bool>((ref) {
-  final box = Hive.box('settings');
-  return box.get('darkTheme', defaultValue: true) as bool;
-});
+// Light theme was removed by request — the app is always dark.
+final themeProvider = StateProvider<bool>((ref) => true);
 
 class AppColors {
   /// Global theme flag. Updated from the root widget on every rebuild so that
