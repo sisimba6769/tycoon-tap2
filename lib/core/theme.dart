@@ -14,13 +14,21 @@ class AppColors {
 
   // --- Theme-adaptive colors (getters, so they follow [isDark]) ---
   static Color get background =>
-      isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF0F0F5);
+      isDark ? const Color(0xFF0A0A0F) : const Color(0xFFEEF1F7);
   static Color get textColor =>
       isDark ? const Color(0xFFF0F0F0) : const Color(0xFF1A1A2E);
+  // In light mode cards are near-opaque white (clean cards), in dark mode a
+  // subtle translucent white (frosted glass).
   static Color get glass =>
-      isDark ? const Color(0x1AFFFFFF) : const Color(0x0D000000);
+      isDark ? const Color(0x1AFFFFFF) : const Color(0xF2FFFFFF);
   static Color get glassBorder =>
-      isDark ? const Color(0x33FFFFFF) : const Color(0x1F000000);
+      isDark ? const Color(0x33FFFFFF) : const Color(0x14000000);
+  // Secondary / muted text that adapts to the theme.
+  static Color get subtleText =>
+      isDark ? const Color(0xFFB0B0C0) : const Color(0xFF6B6B80);
+  // Shadow used by cards; much lighter in light mode.
+  static Color get cardShadow =>
+      isDark ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.06);
 
   // --- Fixed accent colors (same in both themes) ---
   static const accent = Color(0xFF1D9E75);
@@ -33,8 +41,8 @@ class AppColors {
   // Light theme reference colors
   static const lightBackground = Color(0xFFF0F0F5);
   static const lightText = Color(0xFF1A1A2E);
-  static const lightGlass = Color(0x0D000000);
-  static const lightGlassBorder = Color(0x1F000000);
+  static const lightGlass = Color(0xF2FFFFFF);
+  static const lightGlassBorder = Color(0x14000000);
 }
 
 class AppTheme {

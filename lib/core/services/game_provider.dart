@@ -159,9 +159,16 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Public so it can be called after server progress loads and on resume.
   void applyOfflineProgress() {
     final box = Hive.box('game');
+    final cleanPause = box.get('cleanPause', defaultValue: false) as bool;
     final lastSaved = box.get('lastSaved') as int?;
-    if (lastSaved == null) return;
     final now = DateTime.now().millisecondsSinceEpoch;
+    // Always move the baseline forward and clear the flag first, so the same
+    // period can never be counted twice and a version update / crash / stale
+    // timestamp can never produce a windfall.
+    box.put('lastSaved', now);
+    box.put('cleanPause', false);
+    // Only credit offline earnings after a real clean pause/close.
+    if (!cleanPause || lastSaved == null) return;
     final elapsed = (now - lastSaved) / 1000.0; // seconds
     if (elapsed < 10) return;
     final maxOffline = 8 * 3600.0; // max 8 hours offline
@@ -204,8 +211,6 @@ class GameNotifier extends StateNotifier<GameState> {
         adminUnlocked: s.adminUnlocked,
       );
     }
-    // Reset the baseline so the same offline period is never counted twice.
-    box.put('lastSaved', DateTime.now().millisecondsSinceEpoch);
   }
 
   /// Called when the app goes to the background or is closing.
@@ -213,6 +218,9 @@ class GameNotifier extends StateNotifier<GameState> {
   /// earning at full speed while hidden (this caused the "x10 while minimized" bug).
   void pauseGame() {
     _saveGame();
+    // Mark this as a clean pause so the next resume/launch credits offline time
+    // only for the real period the app was away (lastSaved was just set by _saveGame).
+    Hive.box('game').put('cleanPause', true);
     _saveToServer();
     _gameTimer?.cancel();
     _saveTimer?.cancel();
